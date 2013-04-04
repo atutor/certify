@@ -1,4 +1,4 @@
-# sql file for hello world module
+# sql file for certify module
 
 
 
@@ -25,11 +25,15 @@ INSERT INTO `language_text` VALUES
 ('en', '_module','certify_file','Certificate template',NOW(),''),
 ('en', '_module','certify_tests','Tests in this certificate',NOW(),''),
 ('en', '_module','certify_title','Certificate name',NOW(),''),
+('en', '_module','certify_delete','Delete Certificate',NOW(),''),
 ('en', '_module','certify_description','Description',NOW(),''),
 ('en', '_module','certify_status','Status',NOW(),''),
 ('en', '_module','certify_download_certificate','Download certificate',NOW(),''),
 ('en', '_module','certify_add_new','Add new certificate',NOW(),''),
 ('en', '_module','certify_add_certificate','Add new certificate',NOW(),''),
 ('en', '_module','certify_student_status','Student status',NOW(),''), 
+('en', '_module','certify_no_certificate_file','Certificate file was not generated or does not exist',NOW(),''), 
 ('en', '_module','certify_edit_tests','Edit tests',NOW(),''), 
+('en', '_module','certify_no_pdftk','PDFTK failed - not installed or wrong path?',NOW(),''), 
+('en', '_msgs', 'AT_CONFIRM_DELETE_CERTIFICATE', 'Are you sure you want to delete this certificate?', NOW(), ''),
 ('en', '_msgs', 'AT_INFOS_CERTIFY_NO_CERTIFICATES', 'There are no certificates yet, let us <a href="mods/certify/certify_add_new.php">add one</a>!', NOW(), '');

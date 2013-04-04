@@ -57,10 +57,10 @@ if (!file_exists($filebase.'pdf')) {
 
 
 	$params = array(
-	//	'course_name'	=> iconv("UTF-8", "ISO-8859-1//IGNORE", $row['coursetitle']),
+		'course_name'	=> iconv("UTF-8", "ISO-8859-1//IGNORE", $row['coursetitle']),
 		'full_name'		=> iconv("UTF-8", "ISO-8859-1//IGNORE", implode(' ',array($row['first_name'],$row['second_name'],$row['last_name']))),
 		'test_name'		=> iconv("UTF-8", "ISO-8859-1//IGNORE", $row['certifytitle']),
-	//	'score'			=> iconv("UTF-8", "ISO-8859-1//IGNORE", 'Bestått'),
+		//'score'			=> iconv("UTF-8", "ISO-8859-1//IGNORE", 'Bestått'),
 		'issued_date'	=> iconv("UTF-8", "ISO-8859-1//IGNORE", date('F j, Y'))
 	);
 	
@@ -95,8 +95,10 @@ trailer
 	$output = array();
 	$return_var = 0;
 	
-//	$exec = '/opt/local/bin/pdftk '.$template.' fill_form '.$filename.' output '.$filebase.'pdf flatten';
+	/////  ADJUST THE PATH TO YOUR PDFTK IF NECESSARY
+	//$exec = '/usr/local/bin/pdftk '.$template.' fill_form '.$filename.' output '.$filebase.'pdf flatten';
 	$exec = '/usr/bin/pdftk '.$template.' fill_form '.$filename.' output '.$filebase.'pdf flatten';
+	//$exec = 'pdftk '.$template.' fill_form '.$filename.' output '.$filebase.'pdf flatten';
 	exec($exec, $output, $return_var);
 
 	//unlink($filename);
@@ -117,8 +119,11 @@ if (file_exists($filebase.'pdf')) {
   //flush();
   readfile($filebase.'pdf');
 
+} else if (!file_exists($filebase.'pdf')){
+  echo _AT('certify_no_certificate_file');  
+  exit;
 } else {
-  echo "PDFTK failed - not installed or wrong path?";
+  echo _AT('certify_no_pdftk');
   exit;
 }
 ?>

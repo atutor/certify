@@ -86,7 +86,9 @@ if (isset($_POST['submit'])) { // Incoming changes
 							'". $certify_description ."')";
 							
 		$result = mysql_query($sql, $db) or die(mysql_error());
-
+		$certify_id = mysql_insert_id($db);
+		$templatefile = AT_CONTENT_DIR .'certify/template_'.$certify_id.'.pdf';
+		
 		if ($_FILES['certify_file']['size'] > 0 && $_FILES['certify_file']['error'] == 0) {
 			if (move_uploaded_file($_FILES['certify_file']['tmp_name'], $templatefile)) {
 				// File ok
@@ -96,8 +98,7 @@ if (isset($_POST['submit'])) { // Incoming changes
 		}
 		$templatepresent = file_exists($templatefile);
 
-		$certify_id = mysql_insert_id($db);
-		write_to_log(AT_ADMIN_LOG_INSERT, 'certify', mysql_affected_rows($db), $sql);
+		//write_to_log(AT_ADMIN_LOG_INSERT, 'certify', mysql_affected_rows($db), $sql);
 	
 		$msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
 	
