@@ -44,7 +44,7 @@ echo '<!-- <code><pre>'.$dout.'</pre></code> -->';
 </tr>
 </thead>
 <tbody>
-<?php foreach ($certify_certificates as $certify_id => &$certificate) { ?>
+<?php foreach ($certify_certificates as $certify_id => $certificate) { ?>
 
 	<?php if ($certificate['progress'] < 100) { ?>
 
