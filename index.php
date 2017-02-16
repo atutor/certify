@@ -16,15 +16,20 @@ $certify_certificates = array();
 	
 // Fetch certificates for course
 
-$sql = 'SELECT * from '.TABLE_PREFIX.'certify where course_id='.$_SESSION['course_id'];
-$result = mysql_query($sql, $db) or die(mysql_error());
+if (isset($_SESSION['course_id']) && $_SESSION['course_id']) {
+    $course_id = $_SESSION['course_id'];
+    $sql = 'SELECT * FROM %scertify where course_id=%d';
+    $result = queryDB($sql, array(TABLE_PREFIX, $course_id));
 
-while( $row = mysql_fetch_assoc($result) ) {
-	$this_cert = array();
-	$this_cert['title'] = $row['title'];
-	$this_cert['description'] = $row['description'];
-	$this_cert['progress'] = getCertificateProgress($_SESSION[member_id], $row['certify_id']);
-	$certify_certificates[$row['certify_id']] = $this_cert;
+
+    foreach($result as $certify){ 
+            $this_cert = array();
+            $this_cert['title'] = $certify['title'];
+            $this_cert['description'] = $certify['description'];
+            $this_cert['progress'] = getCertificateProgress($_SESSION[member_id], $certify['certify_id']);
+            //echo('course: '.$course_id.' ,member: '.$_SESSION[member_id].' ,progress: '.$this_cert['progress'].', certify:'.$certify['certify_id']);
+            $certify_certificates[$certify['certify_id']] = $this_cert;
+    }
 }
 
 
@@ -44,7 +49,7 @@ echo '<!-- <code><pre>'.$dout.'</pre></code> -->';
 </tr>
 </thead>
 <tbody>
-<?php foreach ($certify_certificates as $certify_id => $certificate) { ?>
+<?php foreach ($certify_certificates as $certify_id => &$certificate) { ?>
 
 	<?php if ($certificate['progress'] < 100) { ?>
 
