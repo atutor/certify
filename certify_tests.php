@@ -42,7 +42,8 @@ if (isset($_POST['edit'])) { // Commit edit
 					VALUES %s";
 			
                 $params = array_merge(array(TABLE_PREFIX, implode(',',$sqlrows))) ;
-		$result = queryDB($query, $params);                
+		$result = queryDB($query, $params);   
+                write_to_log(AT_ADMIN_LOG_INSERT, 'certify', count($result), $query);
 
 	}
 
