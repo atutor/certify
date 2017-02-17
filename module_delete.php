@@ -9,24 +9,11 @@
 function cerify_delete($course) {
 	global $db;
 
-/*
-	// delete hello_world course table entries
-	$sql =  "DELETE FROM ".TABLE_PREFIX."certify, ".TABLE_PREFIX."certify_members, ".TABLE_PREFIX."certify_tests ";
-	$sql .= "USING ".TABLE_PREFIX."certify INNER JOIN ".TABLE_PREFIX."certify_members INNER JOIN ".TABLE_PREFIX."certify_tests ";
-	$sql .= "WHERE ".TABLE_PREFIX."certify.course = $course ";
-	$sql .= "AND ".TABLE_PREFIX."certify.certify_id = ".TABLE_PREFIX."certify_members.certify_id ";
-	$sql .= "AND ".TABLE_PREFIX."certify.certify_id = ".TABLE_PREFIX."certify_tests.certify_id";
-	mysql_query($sql, $db);
-*/
 
-//	$sql = 'DELETE members FROM '.TABLE_PREFIX.'certify AS certify INNER JOIN '.TABLE_PREFIX.'certify_members AS members WHERE certify.course='.$course.' AND certify.certify_id=members.certify_id';
-//	mysql_query($sql, $db);
-	$sql = 'DELETE tests FROM '.TABLE_PREFIX.'certify AS certify INNER JOIN '.TABLE_PREFIX.'certify_tests AS tests WHERE certify.course='.$course.' AND certify.certify_id=tests.certify_id';
-	mysql_query($sql, $db);
-	$sql = 'DELETE FROM '.TABLE_PREFIX.'certify AS certify WHERE certify.course='.$course;
-	mysql_query($sql, $db);
-
-
+	$query = 'DELETE tests FROM %scertify AS certify INNER JOIN %scertify_tests AS tests WHERE certify.course=%d AND certify.certify_id=tests.certify_id';
+	queryDB($query, array(TABLE_PREFIX, TABLE_PREFIX, $course ));
+	$query1 = 'DELETE FROM %scertify AS certify WHERE certify.course=%d';
+	queryDB($query1, array(TABLE_PREFIX, TABLE_PREFIX, $course ));
 }
 
 ?>
