@@ -43,7 +43,9 @@ if (isset($_POST['edit'])) { // Commit edit
 			
                 $params = array_merge(array(TABLE_PREFIX, implode(',',$sqlrows))) ;
 		$result = queryDB($query, $params);   
+
                 write_to_log(AT_ADMIN_LOG_INSERT, 'certify', count($result), printf($query, TABLE_PREFIX, implode(',',$sqlrows)));
+
 
 	}
 
@@ -54,7 +56,9 @@ if (isset($_POST['edit'])) { // Commit edit
 
             $params = array(TABLE_PREFIX, implode(",",$update_remove));
             $result = queryDB($query, $params);
+
             write_to_log(AT_ADMIN_LOG_DELETE, 'certify', count($result), printf($query, TABLE_PREFIX, implode(",",$update_remove)));
+
 
 	}
 
@@ -163,7 +167,7 @@ function fetchTestList($certify_id) {
 	$query .= "WHERE %scertify_tests.certify_id=%d";
 	$params = array(TABLE_PREFIX, TABLE_PREFIX, $certify_id);
         $result = queryDB($query, $params);
-       
+
         foreach($result as $row){
 		$certify_tests[$row['test_id']]['selected'] = true;
 	}
