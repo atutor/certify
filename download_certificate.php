@@ -20,30 +20,33 @@ if (file_exists($templatefile)) {
 
 if (!file_exists($filebase.'pdf')) {
 	// Fetch cached scores
-	
-	$sql =  '
+		       
+        $query =  '
 	
 		SELECT
-			'.TABLE_PREFIX.'courses.title AS coursetitle,
-			'.TABLE_PREFIX.'members.first_name,
-			'.TABLE_PREFIX.'members.second_name,
-			'.TABLE_PREFIX.'members.last_name,
-			'.TABLE_PREFIX.'members.email,
-			'.TABLE_PREFIX.'certify.title AS certifytitle
+			%scourses.title AS coursetitle,
+			%smembers.first_name,
+			%smembers.second_name,
+			%smembers.last_name,
+			%smembers.email,
+			%scertify.title AS certifytitle
 	
-		FROM '.TABLE_PREFIX.'members
-		INNER JOIN '.TABLE_PREFIX.'certify ON '.TABLE_PREFIX.'certify.certify_id = '.$certify_id.'
-		INNER JOIN '.TABLE_PREFIX.'courses ON '.TABLE_PREFIX.'certify.course_id = '.TABLE_PREFIX.'courses.course_id
+		FROM %smembers
+		INNER JOIN %scertify ON %scertify.certify_id = %d
+		INNER JOIN %scourses ON %scertify.course_id = %scourses.course_id
 	
-		WHERE '.TABLE_PREFIX.'members.member_id = '.$_SESSION['member_id'].' 
+		WHERE %smembers.member_id = %d 
 	';
-
+        
 	//echo $sql;
 	//exit();
 
-	$result = mysql_query($sql, $db) or die(mysql_error() . $sql);
+        $rows = queryDB($query, array(TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX,
+            $certify_id, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, $_SESSION['member_id']));
+        
 	
-	if ( !$row = mysql_fetch_assoc($result)) { // Probably a hack attempt, so aborting should be sufficient
+	
+	if ( !$row = reset($rows)) { // Probably a hack attempt, so aborting should be sufficient
 		echo "Oh no you don't!";
 		exit();
 	}
@@ -54,7 +57,6 @@ if (!file_exists($filebase.'pdf')) {
 	}
 
 	// Generate FDF
-
 
 	$params = array(
 		'course_name'	=> iconv("UTF-8", "ISO-8859-1//IGNORE", $row['coursetitle']),

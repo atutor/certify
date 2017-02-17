@@ -32,12 +32,19 @@ $sql =  '
 ';
 
 
-$result = mysql_query($sql, $db) or die(mysql_error());
+$query =  '
+	SELECT %smembers.*
+	FROM %scourse_enrollment
+	INNER JOIN %smembers ON %smembers.member_id = %scourse_enrollment.member_id
+	WHERE %scourse_enrollment.course_id = %d
+';
+
+$rows = queryDB($query, array(TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, $_SESSION['course_id'] ));
 
 dbug($sql);
 
 $members = array();
-while( $member = mysql_fetch_assoc($result) ) {
+foreach( $rows as $member ) {
 	$member['certificate'] = array();
 	$member['certificate']['progress'] = getCertificateProgress($member['member_id'],$certify_id);
 	$members[$member['member_id']] = $member;

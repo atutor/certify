@@ -35,12 +35,12 @@ else if (!empty($_POST) && !isset($_POST['certify_id'])) {
 }
 
 // Fetch all tests for course
-$sql =  "SELECT certify_id, title, description FROM ".TABLE_PREFIX."certify WHERE course_id=".$_SESSION['course_id'];
-$result = mysql_query($sql, $db) or die(mysql_error());
+$query =  "SELECT certify_id, title, description FROM %scertify WHERE course_id=$d";
+$rows = queryDB($query, array(TABLE_PREFIX,$_SESSION['course_id']));
 
 $certificates = array();
 
-while( $row = mysql_fetch_assoc($result) ) {
+foreach($rows as $row){
     $certificates[] = $row;
 }
 
