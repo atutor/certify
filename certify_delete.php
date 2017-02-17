@@ -27,6 +27,7 @@ if (isset($_POST['submit_no'])) {
 	//$sql = 'DELETE members FROM '.TABLE_PREFIX.'certify AS certify INNER JOIN '.TABLE_PREFIX.'certify_members AS members WHERE certify.certify_id='.$_POST['certify_id'].' AND certify.certify_id=members.certify_id';
 	//mysql_query($sql, $db) or die('1:'.mysql_error());
 
+        write_to_log(AT_ADMIN_LOG_DELETE, 'certify', count($result), $query);
         
         $query = 'DELETE tests FROM %scertify AS certify INNER JOIN %scertify_tests AS tests WHERE certify.certify_id=%d AND certify.certify_id=tests.certify_id';
 	queryDB($query,  array(TABLE_PREFIX, TABLE_PREFIX, $_POST['certify_id']));
