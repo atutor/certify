@@ -26,13 +26,14 @@ if (isset($_POST['submit_no'])) {
 	
 	//$sql = 'DELETE members FROM '.TABLE_PREFIX.'certify AS certify INNER JOIN '.TABLE_PREFIX.'certify_members AS members WHERE certify.certify_id='.$_POST['certify_id'].' AND certify.certify_id=members.certify_id';
 	//mysql_query($sql, $db) or die('1:'.mysql_error());
-	$sql = 'DELETE tests FROM '.TABLE_PREFIX.'certify AS certify INNER JOIN '.TABLE_PREFIX.'certify_tests AS tests WHERE certify.certify_id='.$_POST['certify_id'].' AND certify.certify_id=tests.certify_id';
-	mysql_query($sql, $db) or die('2:'.mysql_error());
-	$sql = 'DELETE FROM '.TABLE_PREFIX.'certify WHERE '.TABLE_PREFIX.'certify.certify_id='.$_POST['certify_id'];
-	mysql_query($sql, $db) or die('3:'.mysql_error());
 
-	write_to_log(AT_ADMIN_LOG_DELETE, 'certify', mysql_affected_rows($db), $sql);
-
+        write_to_log(AT_ADMIN_LOG_DELETE, 'certify', count($result), $query);
+        
+        $query = 'DELETE tests FROM %scertify AS certify INNER JOIN %scertify_tests AS tests WHERE certify.certify_id=%d AND certify.certify_id=tests.certify_id';
+	queryDB($query,  array(TABLE_PREFIX, TABLE_PREFIX, $_POST['certify_id']));
+	$query1 = 'DELETE FROM %scertify WHERE %scertify.certify_id=%d';
+	$certify_deleted = queryDB($query1, array(TABLE_PREFIX, TABLE_PREFIX, $_POST['certify_id']));
+          
 	$msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
 
 
@@ -60,21 +61,22 @@ require(AT_INCLUDE_PATH.'header.inc.php');
 
 $_GET['certify_id'] = intval($_GET['certify_id']); 
 
-$sql = "SELECT certify_id, title FROM ".TABLE_PREFIX."certify c WHERE c.certify_id=$_GET[certify_id]";
-$result = mysql_query($sql,$db) or die(mysql_error());
+$query = "SELECT certify_id, title FROM %scertify c WHERE c.certify_id=%d";
+$result = dbQuery($query,array(TABLE_PREFIX,$_GET[certify_id]));
 
-if (mysql_num_rows($result) == 0) {
+
+if (count($result) == 0) {
 	$msg->printErrors('ITEM_NOT_FOUND');
 } else {
-	$row = mysql_fetch_assoc($result);
-	
-	$hidden_vars['title']= $row['title'];
-	$hidden_vars['certify_id']	= $row['certify_id'];
+        foreach($rows as $row){
+            $hidden_vars['title']= $row['title'];
+            $hidden_vars['certify_id']	= $row['certify_id'];
 
-	$confirm = array('DELETE_CERTIFICATE', $row['title']);
-	$msg->addConfirm($confirm, $hidden_vars);
-	
-	$msg->printConfirm();
+            $confirm = array('DELETE_CERTIFICATE', $row['title']);
+            $msg->addConfirm($confirm, $hidden_vars);
+
+            $msg->printConfirm();
+        }
 }
 
 require(AT_INCLUDE_PATH.'footer.inc.php');

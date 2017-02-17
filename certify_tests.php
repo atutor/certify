@@ -35,24 +35,27 @@ if (isset($_POST['edit'])) { // Commit edit
 		foreach ($update_add as $testid) {
 			$sqlrows[] = '('.$certify_id.",".$testid.')';
 		}
-		$sql = "INSERT INTO ".TABLE_PREFIX."certify_tests
+		
+                $query = "INSERT INTO %scertify_tests
 				(certify_id, 
 				 test_id) 
-					VALUES ".implode(',',$sqlrows);
-							
-		$result = mysql_query($sql, $db) or die(mysql_error());
-		write_to_log(AT_ADMIN_LOG_INSERT, 'certify', mysql_affected_rows($db), $sql);
-	
+					VALUES %s";
+			
+                $params = array_merge(array(TABLE_PREFIX, implode(',',$sqlrows))) ;
+		$result = queryDB($query, $params);   
+                write_to_log(AT_ADMIN_LOG_INSERT, 'certify', count($result), $query);
+
 	}
 
 	if (count($update_remove) > 0) {
-		$sql = "DELETE FROM ".TABLE_PREFIX."certify_tests
-				WHERE certify_id = $certify_id
-				AND test_id IN (".implode(",",$update_remove).")";
-							
-		$result = mysql_query($sql, $db) or die(mysql_error());
-		write_to_log(AT_ADMIN_LOG_DELETE, 'certify', mysql_affected_rows($db), $sql);
-	
+            $query = "DELETE FROM %scertify_tests
+                            WHERE certify_id = $certify_id
+                            AND test_id IN (%s)";
+
+            $params = array(TABLE_PREFIX, implode(",",$update_remove));
+            $result = queryDB($query, $params);
+            write_to_log(AT_ADMIN_LOG_DELETE, 'certify', count($result), $query);
+
 	}
 
 	$msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
@@ -108,7 +111,7 @@ For instructor to edit certificate
 <tbody>
 	<?php foreach ($certify_tests as $id => $test) { ?>
 		<tr>
-			<td><input type="checkbox" <?php if ($test['selected']) { echo 'checked="checked" '; } ?> name="selected[<?= $id ?>]" value="1"></td>
+			<td><input type="checkbox" <?php if ($test['selected']) { echo 'checked="checked" '; } ?> name="selected[<?php echo $id ?>]" value="1"></td>
 			
 			<td><label for=""><?php echo $test['title']; ?></label></td>
 			
@@ -140,12 +143,15 @@ function fetchTestList($certify_id) {
 
 	// Fetch all tests for course
 	// FIXME: Need to filter out tests that doesn't have a pass criteria
-	$sql =  "SELECT test_id, title FROM ".TABLE_PREFIX."tests WHERE course_id=".$_SESSION['course_id'];
-	$result = mysql_query($sql, $db) or die(mysql_error() . $sql);
+        
+        $query =  "SELECT test_id, title FROM %stests WHERE course_id=%d";
+        $params = array(TABLE_PREFIX, $_SESSION['course_id']);
+	$result = queryDB($query, $params);
 	
+        
 	$certify_tests = array();
 	
-	while( $row = mysql_fetch_assoc($result) ) {
+        foreach($result as $row){  
 		$this_test = array();
 		$this_test['title'] = $row['title'];
 		$this_test['selected'] = false;
@@ -153,11 +159,14 @@ function fetchTestList($certify_id) {
 	}
 	
 	// Fetch associated tests
-	$sql =  "SELECT test_id FROM ".TABLE_PREFIX."certify_tests ";
-	$sql .= "WHERE ".TABLE_PREFIX."certify_tests.certify_id=".$certify_id;
-	$result = mysql_query($sql, $db) or die(mysql_error() . $sql);
+        $query =  "SELECT test_id FROM %scertify_tests ";
+	$query .= "WHERE %scertify_tests.certify_id=%d";
+	$params = array(TABLE_PREFIX, TABLE_PREFIX, $certify_id);
+        $result = queryDB($query, $params);
 	
-	while( $row = mysql_fetch_assoc($result) ) {
+        
+	//while( $row = mysql_fetch_assoc($result) ) {
+        foreach($result as $row){
 		$certify_tests[$row['test_id']]['selected'] = true;
 	}
 	return $certify_tests;

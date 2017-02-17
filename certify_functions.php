@@ -9,14 +9,22 @@ function getCertificateProgress($member_id, $certify_id) {
 
 // Fetch associated tests
 
-	$sql =  'SELECT '.TABLE_PREFIX.'certify_tests.*, '.TABLE_PREFIX.'tests.* FROM '.TABLE_PREFIX.'certify_tests ';
-	$sql .= 'INNER JOIN '.TABLE_PREFIX.'tests ON '.TABLE_PREFIX.'certify_tests.test_id = '.TABLE_PREFIX.'tests.test_id ';
-	$sql .= "WHERE ".TABLE_PREFIX."certify_tests.certify_id=".$certify_id;
-	$result = mysql_query($sql, $db) or die(mysql_error() . " - " . $sql);
+
+         
+        
+        $query =  'SELECT %scertify_tests.*, %stests.* FROM %scertify_tests ';
+	$query .= 'INNER JOIN %stests ON %scertify_tests.test_id = %stests.test_id ';
+	$query .= "WHERE %scertify_tests.certify_id=%d";
+
+        $params = array(TABLE_PREFIX,TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX,
+                $certify_id);
+	$result = queryDB($query, $params);
 	
+        
 	$certificate['tests'] = array();
-	while( $row = mysql_fetch_assoc($result) ) {
-		$certificate['tests'][$row['test_id']] = array();
+
+	foreach($result as $row) {
+                $certificate['tests'][$row['test_id']] = array();
 		$certificate['tests'][$row['test_id']]['passscore'] = $row['passscore'];
 		$certificate['tests'][$row['test_id']]['passpercent'] = $row['passpercent'];
 		$certificate['tests'][$row['test_id']]['out_of'] = $row['out_of'];
@@ -31,20 +39,23 @@ function getCertificateProgress($member_id, $certify_id) {
 
 
 // Calculate new scores for each test
-
-	$sql =  '
-		SELECT '.TABLE_PREFIX.'certify_tests.test_id, '.TABLE_PREFIX.'tests_results.* 
-		FROM '.TABLE_PREFIX.'certify_tests
-		RIGHT JOIN '.TABLE_PREFIX.'tests_results ON '.TABLE_PREFIX.'tests_results.test_id = '.TABLE_PREFIX.'certify_tests.test_id
-		WHERE '.TABLE_PREFIX.'tests_results.member_id = '.$member_id.'
-		AND '.TABLE_PREFIX.'certify_tests.certify_id = '.$certify_id.'
+      
+        $query1 =  '
+		SELECT %scertify_tests.test_id, %stests_results.* 
+		FROM %scertify_tests
+		RIGHT JOIN %stests_results ON %stests_results.test_id = %scertify_tests.test_id
+		WHERE %stests_results.member_id = %d
+		AND %scertify_tests.certify_id = %d
 	';
 
-	$result = mysql_query($sql, $db) or die(mysql_error() . "<br>" . $sql);
-	//echo '<code style="background-color:white;"><pre>'.$sql.'</pre></code>';
-	while( $row = mysql_fetch_assoc($result) ) {
-		if (!isset($certificate['tests'][$row['test_id']]['final_score']) || $certificate['tests'][$row['test_id']]['final_score'] < $row['final_score'])
-			$certificate['tests'][$row['test_id']]['final_score'] = $row['final_score'];
+        $params1 = array(TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, 
+            TABLE_PREFIX, $member_id, TABLE_PREFIX, $certify_id);
+	$result1 = queryDB($query1, $params1);
+        
+        foreach($result1  as $row){
+            if (!isset($certificate['tests'][$row['test_id']]['final_score']) || 
+                    $certificate['tests'][$row['test_id']]['final_score'] < $row['final_score'])
+            {$certificate['tests'][$row['test_id']]['final_score'] = $row['final_score'];}
 
 	}
 
