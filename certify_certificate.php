@@ -45,16 +45,17 @@ if (isset($_POST['submit'])) { // Incoming changes
 		
 		// COMMIT CHANGES
 
-		$sql = "UPDATE ".TABLE_PREFIX."certify
+
+                $query ="UPDATE %scertify
 				SET
-					title = '$certify_title',
-					description = '$certify_description'
+					title = '%s',
+					description = '%s'
 				WHERE
-					certify_id = $certify_id
-				";
-
-		$result = mysql_query($sql, $db) or die(mysql_error());
-
+					certify_id = %d
+				";                        
+                        
+                $certify_updated = queryDB($query, array(TABLE_PREFIX, $certify_title, $certify_description, $certify_id ));
+                
 		if (file_exists($templatefile))
 			unlink($templatefile);
 		if ($_FILES['certify_file']['size'] > 0 && $_FILES['certify_file']['error'] == 0) {
@@ -66,7 +67,7 @@ if (isset($_POST['submit'])) { // Incoming changes
 		}
 		$templatepresent = file_exists($templatefile);
 
-		//write_to_log(AT_ADMIN_LOG_UPDATE, 'certify', mysql_affected_rows($db), $sql);
+		write_to_log(AT_ADMIN_LOG_UPDATE, 'certify', count($certify_updated), sprintf($query,TABLE_PREFIX, $certify_title, $certify_description, $certify_id) );
 
 		$msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
 	
@@ -77,16 +78,17 @@ if (isset($_POST['submit'])) { // Incoming changes
 
 		// COMMIT NEW
 	
-		$sql = "INSERT INTO ".TABLE_PREFIX."certify
+		$query = "INSERT INTO %scertify
 				(course_id, 
 				 title,
 				 description) 
-					VALUES (". $_SESSION['course_id'] .", 
-							'". $certify_title ."',
-							'". $certify_description ."')";
-							
-		$result = mysql_query($sql, $db) or die(mysql_error());
-		$certify_id = mysql_insert_id($db);
+					VALUES (%d, 
+                                                    '%s',
+                                                    '%s')";
+		
+                $certify_inserted = queryDB($query, array(TABLE_PREFIX, $_SESSION['course_id'], $certify_title,$certify_description));
+                
+		$certify_id = at_insert_id();
 		$templatefile = AT_CONTENT_DIR .'certify/template_'.$certify_id.'.pdf';
 		
 		if ($_FILES['certify_file']['size'] > 0 && $_FILES['certify_file']['error'] == 0) {
@@ -98,7 +100,7 @@ if (isset($_POST['submit'])) { // Incoming changes
 		}
 		$templatepresent = file_exists($templatefile);
 
-		//write_to_log(AT_ADMIN_LOG_INSERT, 'certify', mysql_affected_rows($db), $sql);
+		write_to_log(AT_ADMIN_LOG_INSERT, 'certify', count($certify_updated), sprintf($query,TABLE_PREFIX, $_SESSION['course_id'], $certify_title,$certify_description));
 	
 		$msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
 	
@@ -120,17 +122,17 @@ if (isset($_POST['submit'])) { // Incoming changes
 	
 	// EDIT EXISTING
 
-	// Fetch basic data
-	$sql = "SELECT * from ".TABLE_PREFIX."certify where certify_id=".$certify_id;
-	$result = mysql_query($sql, $db) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-
+	// Fetch basic data        
+        $query = "SELECT * from %scertify where certify_id=%d";
+        $rows = queryDB($query, array(TABLE_PREFIX, $certify_id));
+		
 	if (!$row)
 		exit; // TODO: Invalid id - how to handle?
 		
-	$certify_title = $row['title'];
-	$certify_description = $row['description'];
-
+        foreach($rows as $row){
+            $certify_title = $row['title'];
+            $certify_description = $row['description'];
+        }
 }
 
 require(AT_INCLUDE_PATH.'header.inc.php'); 

@@ -23,21 +23,19 @@ if (isset($_POST['certify_id'])) {
 
 
 
-
-$sql =  '
-	SELECT '.TABLE_PREFIX.'members.*
-	FROM '.TABLE_PREFIX.'course_enrollment
-	INNER JOIN '.TABLE_PREFIX.'members ON '.TABLE_PREFIX.'members.member_id = '.TABLE_PREFIX.'course_enrollment.member_id
-	WHERE '.TABLE_PREFIX.'course_enrollment.course_id = '.$_SESSION['course_id'].'
+$query =  '
+	SELECT %smembers.*
+	FROM %scourse_enrollment
+	INNER JOIN %smembers ON %smembers.member_id = %scourse_enrollment.member_id
+	WHERE %scourse_enrollment.course_id = %d
 ';
 
+$rows = queryDB($query, array(TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, $_SESSION['course_id'] ));
 
-$result = mysql_query($sql, $db) or die(mysql_error());
-
-dbug($sql);
+dbug(printf($query, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, TABLE_PREFIX, $_SESSION['course_id']));
 
 $members = array();
-while( $member = mysql_fetch_assoc($result) ) {
+foreach( $rows as $member ) {
 	$member['certificate'] = array();
 	$member['certificate']['progress'] = getCertificateProgress($member['member_id'],$certify_id);
 	$members[$member['member_id']] = $member;
